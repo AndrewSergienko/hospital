@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Додати пацієнта{% endblock %}
+{% block content %}
+    <form action="." method="post">
+        {{ form.as_p }}
+        {% csrf_token %}
+        <p><input type="submit" value="Зберегти"></p>
+    </form>
+{% endblock %}

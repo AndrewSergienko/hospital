@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Лікарня{% endblock %}
+{% block content %}
+    <div class="container">
+        <h5>Інформація про вас:</h5>
+        <div class="card">
+            <div class="card-content">
+                <span id="full_name_span" class="card-title">{{ user.full_name }}</span>
+                <p id="date_of_birth_p">Спеціальність: {{ user.specialty }}</p>
+                <p id="home_address_p">Поштовий адрес: {{ user.email }}</p>
+            </div>
+            <div class="card-action">
+                <a class="waves-effect waves-light btn-flat btn-small modal-trigger" href="#modal_edit_info">Змінити інформацію</a>
+            </div>
+        </div>
+        <h5>Активність на сайті:</h5>
+        <ul class="collection">
+            {% for action in actions %}
+                <li class="collection-item" style="display: flex; align-items: center; padding: 0 20px 0 0;">
+                    {% if action.action_text == "створив карту:" or action.action_text == "добавив запис в карті:" %}
+                        <i class="material-icons" style="width: 50px; padding: 7px; text-align: center; color: #04951a">add</i>
+                    {% elif action.action_text == "видалив запис в карті:" or action.action_text == "видалив карту:" %}
+                        <i class="material-icons" style="width: 50px; padding: 7px; text-align: center; color: #c94545">close</i>
+                    {% elif action.action_text == "змінив запис в карті:" or action.action_text == "змінив інформацію про карту:" %}
+                        <i class="material-icons" style="width: 50px; padding: 7px; text-align: center; color: #0590cc">edit</i>
+                    {% endif %}
+                    <div style="display:flex; justify-content: space-between; width: 100%; margin-left: 10px">
+                        <h6 style="margin: 0">{{ action.author_name }} {{ action.action_text }} {{ action.target_name }}</h6>
+                        <h6 style="margin: 0">{{ action.date }}</h6>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div id="modal_edit_info" class="modal modal-fixed-footer">
+      <form action="." method="post">
+          <div class="modal-content">
+              <h4>Змінити інформацію</h4>
+              <div class="divider"></div>
+              {{ edit_form.as_p }}
+              {% csrf_token %}
+          </div>
+          <div class="modal-footer">
+              <a class="modal-close waves-effect waves-light btn-flat btn-small">Відміна</a>
+              <input class="my-input modal-close waves-effect waves-light btn-flat btn-small" type="submit"
+                     value="Зберегти">
+          </div>
+      </form>
+    </div>
+    <script>
+    $(document).ready(function() {
+        $('.modal').modal();
+    })
+    </script>
+{% endblock %}

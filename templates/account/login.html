@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+    <div class="container" style="display: flex; justify-content: center">
+        <div class="card" style="padding: 10px; width: 50%">
+           <form action="." method="post">
+            {{ form.as_p }}
+            {% csrf_token %}
+            <p style="text-align: center"><input class="waves-effect waves-light btn" type="submit" value="Увійти"></p>
+            </form>
+        </div>
+    </div>
+{% endblock %}

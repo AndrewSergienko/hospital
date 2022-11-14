@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Пацієнти{% endblock %}
+{% block content %}
+    <div class="patients container">
+        <h4>Карти пацієнтів:</h4>
+        <ul class="collection with-header">
+            <li class="collection-header">
+                <ul class="collapsible" style="border: none; box-shadow: none; margin: 0.5rem 0;">
+                    <li>
+                        <div class="collapsible-header" style="border: none; padding: 0"><b>Пошук, сортування та фільтри</b></div>
+                        <div class="collapsible-body filter-section" style="border: none;">
+                            <div class="row">
+                                 <div class="input-field col s4">
+                                  <input id="search-input" type="text" class="validate">
+                                  <label for="search_input">Пошук по імені</label>
+                                </div>
+                                <h6 class="col s9">Фільтри:</h6>
+                                <div class="col s5">
+                                    <input id="filter-date-1" type="date" class="validate">
+                                    <label for="filter-date-1">Від дати:</label>
+                                </div>
+                                <div class="col s5">
+                                    <input id="filter-date-2" type="date" class="validate">
+                                    <label for="filter-date-2">До дати:</label>
+                                </div>
+                                <h6 class="col s9">Сортування:</h6>
+                                <div class="input-field col s6">
+                                    <select id="sort-date">
+                                      <option value="" disabled selected>Виберіть порядок</option>
+                                      <option value="up">По зростанню</option>
+                                      <option value="down">По спаданню</option>
+                                    </select>
+                                    <label>Дата народження:</label>
+                                </div>
+                                <div class="col s10">
+                                    <a id="run-filters" class="waves-effect waves-light btn">Застосувати</a>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </li>
+            {% for card in page_obj %}
+                <div class="collection-item patient-card" style="padding: 5px 20px" onclick="window.location.href='{% url 'patients:card_info' card.id %}';">
+                    <span class="title" style="width: 55%"><h6>{{ card.full_name }}</h6></span>
+                    <div>
+                        <p class="patient-card-info"><b>Дата народження:</b> {{ card.date_of_birth }}<br>
+                            <b>Адрес:</b> {{ card.home_address }}</p>
+                    </div>
+                </div>
+            {% endfor %}
+        </ul>
+        {% if not page_obj.paginator.num_pages == 1 %}
+                <ul class="pagination center">
+                {% if page_obj.has_previous %}
+                    <li class="">
+                        <a href="?page={{ page_obj.previous_page_number }}"><i class="material-icons">chevron_left</i></a>
+                    </li>
+                    <li class="waves-effect"><a href="?page=1">1</a></li>
+                    {% else %}
+                    <li class="disabled">
+                        <a href="#!"><i class="material-icons">chevron_left</i></a>
+                    </li>
+                {% endif %}
+                <li class="active"><a href="#">{{ page_obj.number }}</a></li>
+                {% if page_obj.has_next %}
+                    <li class="waves-effect"><a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a></li>
+                    <li class="waves-effect"><a href="?page={{ page_obj.next_page_number }}"><i class="material-icons">chevron_right</i></a></li>
+                {% else %}
+                    <li class="disabled">
+                        <a href="#!"><i class="material-icons">chevron_right</i></a>
+                    </li>
+                {% endif %}
+                </ul>
+        {% endif %}
+    </div>
+    <div class="fixed-action-btn">
+      <a class="btn-floating btn-large modal-trigger" href="#modal1" style="background-color: #26a69a">
+          <i class="large material-icons">add</i>
+      </a>
+    </div>
+
+  <!-- Modal Structure -->
+  <div id="modal1" class="modal modal-fixed-footer">
+      <form id="my_form" action="{% url 'patients:add_card' %}" method="post">
+          <div class="modal-content">
+              <h4>Додати карту пацієнта</h4>
+              <div class="divider"></div>
+              {{ form.as_p }}
+              {% csrf_token %}
+          </div>
+          <div class="modal-footer">
+              <a class="modal-close waves-effect waves-light btn-flat btn-small">Відміна</a>
+              <input class="my-input modal-close waves-effect waves-light btn-flat btn-small" type="submit"
+                     value="Зберегти">
+          </div>
+      </form>
+  </div>
+    <script>
+          $(document).ready(function(){
+            $('.modal').modal();
+            $('.collapsible').collapsible();
+            $('select').formSelect();
+          });
+          document.querySelector("#run-filters").onclick = () => {
+              let params = "?"
+              const filter_input_ids = [
+                  '#search-input',
+                  '#filter-date-1',
+                  '#filter-date-2',
+                  '#sort-date'
+              ]
+              for(let i = 0; i < filter_input_ids.length; i++){
+                  const value = document.querySelector(filter_input_ids[i]).value
+                  if(value){
+                      params += filter_input_ids[i].substring(1) + "=" + value + "&"
+                  }
+              }
+              window.location = params.slice(0, -1);
+          }
+    </script>
+{% endblock %}

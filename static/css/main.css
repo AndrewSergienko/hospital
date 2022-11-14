@@ -1,0 +1,31 @@
+.patient-card-info{
+    margin: 0;
+}
+.patient-card{
+    display: flex;
+    align-items: center;
+}
+.patient-card:hover{
+    background: rgba(38, 166, 154, 0.3);
+    cursor: pointer;
+}
+.btn-icon{
+    width: 13px;
+    margin-bottom: 3px;
+}
+a {
+  color: inherit; /* blue colors for links too */
+  text-decoration: inherit; /* no underline */
+}
+ul {
+    list-style: none;
+}
+.my-input:hover{
+    cursor: pointer;
+}
+.filter-section {
+    padding: 0 !important;
+}
+.pagination .active {
+    background-color: #26a69a !important;
+}

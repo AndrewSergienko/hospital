@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ card.full_name }}{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="card">
+            <div class="card-content">
+                <span id="full_name_span" class="card-title">{{ card.full_name }}</span>
+                <p id="date_of_birth_p">Дата народження: {{ card.date_of_birth }}</p>
+                <p id="home_address_p">Адреса: {{ card.home_address }}</p>
+            </div>
+            <div class="card-action">
+                <a class="waves-effect waves-light btn-flat btn-small modal-trigger" href="#modal_edit_info">Змінити інформацію</a>
+                <a class="waves-effect waves-light btn-flat btn-small modal-trigger" href="#modal_confirm_delete">Видалити карту</a>
+            </div>
+        </div>
+        {% if notes|length > 0 %}
+            <div style="display: flex; justify-content: space-between; align-items: center">
+                <h5>Історія обстежень:</h5>
+                <a class="modal-trigger waves-effect waves-light btn" href="#modal_add_note">Додати запис</a>
+            </div>
+        <ul class="collapsible">
+            {% for note in notes %}
+                <li>
+                    <div class="collapsible-header" style="justify-content: space-between; padding: 10px 30px">
+                        <h6>{{ note.date }}</h6>
+                        <h6>Доктор: {{ note.doctor.full_name }}</h6>
+                        <input type="hidden" id="url_edit_note_{{ note.id }}" value="{% url "patients:edit_note" note.id %}">
+                    </div>
+                    <div class="collapsible-body">
+                        <p id="note_{{ note.id }}" style="margin: 0 0 20px 0">{{ note.text }}</p>
+                        <div class="divider" style="margin-bottom: 10px"></div>
+                        <a class="modal-trigger waves-effect waves-light btn-flat btn-small" href="#modal_edit_note" onclick="changeTextAreaNote({{ note.id }})"><i class="material-icons left">edit</i>Змінити</a>
+                        <a class="modal-trigger waves-effect waves-light btn-flat btn-small" href="#modal_confirm_delete_note" onclick="changeDeleteNoteUrl('{% url 'patients:delete_note' note.id %}')"><i class="material-icons left">delete</i>Видалити</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+            {% if not notes.paginator.num_pages == 1 %}
+                <ul class="pagination center">
+                {% if notes.has_previous %}
+                    <li class="">
+                        <a href="?notes_page={{ notes.previous_page_number }}"><i class="material-icons">chevron_left</i></a>
+                    </li>
+                    <li class="waves-effect"><a href="?notes_page=1">1</a></li>
+                    {% else %}
+                    <li class="disabled">
+                        <a href="#!"><i class="material-icons">chevron_left</i></a>
+                    </li>
+                {% endif %}
+                <li class="active"><a href="#">{{ notes.number }}</a></li>
+                {% if notes.has_next %}
+                    <li class="waves-effect"><a href="?notes_page={{ notes.paginator.num_pages }}">{{ notes.paginator.num_pages }}</a></li>
+                    <li class="waves-effect"><a href="?notes_page={{ notes.next_page_number }}"><i class="material-icons">chevron_right</i></a></li>
+                {% else %}
+                    <li class="disabled">
+                        <a href="#!"><i class="material-icons">chevron_right</i></a>
+                    </li>
+                {% endif %}
+                </ul>
+            {% endif %}
+            {% else %}
+            <div style="display: flex; justify-content: space-between; align-items: center">
+                <h5>Записів огляду немає</h5>
+                <a class="modal-trigger waves-effect waves-light btn" href="#modal_add_note">Додати запис</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <div id="modal_add_note" class="modal modal-fixed-footer">
+      <form action="{% url 'patients:add_note' card.id %}" method="post">
+          <div class="modal-content">
+              <h4>Додати запис огляду</h4>
+              <div class="divider"></div>
+              {{ form_add_note.as_p }}
+              {% csrf_token %}
+          </div>
+          <div class="modal-footer">
+              <a class="modal-close waves-effect waves-light btn-flat btn-small">Відміна</a>
+              <input class="my-input modal-close waves-effect waves-light btn-flat btn-small" type="submit"
+                     value="Зберегти">
+          </div>
+      </form>
+    </div>
+
+    <div id="modal_edit_note" class="modal modal-fixed-footer">
+      <form id="edit_note_form">
+          <div class="modal-content">
+              <h4>Змінити запис огляду</h4>
+              <div class="divider"></div>
+              {{ form_add_note.as_p }}
+              {% csrf_token %}
+          </div>
+          <div class="modal-footer">
+              <a class="modal-close waves-effect waves-light btn-flat btn-small">Відміна</a>
+              <input class="my-input modal-close waves-effect waves-light btn-flat btn-small" type="submit"
+                     value="Зберегти">
+          </div>
+      </form>
+    <input type="hidden" id="note_edit_id">
+    </div>
+
+    <div id="modal_edit_info" class="modal modal-fixed-footer">
+      <form id="edit_info_form">
+          <div class="modal-content">
+              <h4>Змінити інформацію</h4>
+              <div class="divider"></div>
+              {{ form_edit_info.as_p }}
+              {% csrf_token %}
+          </div>
+          <div class="modal-footer">
+              <a class="modal-close waves-effect waves-light btn-flat btn-small">Відміна</a>
+              <input class="my-input modal-close waves-effect waves-light btn-flat btn-small" type="submit"
+                     value="Зберегти">
+          </div>
+      </form>
+    </div>
+
+    <div id="modal_confirm_delete" class="modal modal-fixed-footer">
+      <form action="{% url 'patients:card_delete' card.id %}" method="post">
+          <div class="modal-content">
+              <h4>Видалити карту пацієнта?</h4>
+              {% csrf_token %}
+              <div class="divider"></div>
+              <p>Якщо видалити карту, її неможливо буде відновити. Також, видялться всі записи цієї карти.</p>
+          </div>
+          <div class="modal-footer">
+              <a class="modal-close waves-effect waves-light btn-flat btn-small">Ні</a>
+              <input class="my-input modal-close waves-effect waves-light btn-flat btn-small" type="submit"
+                     value="Так">
+          </div>
+      </form>
+    </div>
+
+    <div id="modal_confirm_delete_note" class="modal modal-fixed-footer">
+      <form id="delete_note_form" method="post">
+          <div class="modal-content">
+              <h4>Видалити запис огляду?</h4>
+              {% csrf_token %}
+              <div class="divider"></div>
+              <p>Якщо видалити запис, його неможливо буде відновити.</p>
+          </div>
+          <div class="modal-footer">
+              <a class="modal-close waves-effect waves-light btn-flat btn-small">Ні</a>
+              <input class="my-input modal-close waves-effect waves-light btn-flat btn-small" type="submit"
+                     value="Так">
+          </div>
+      </form>
+    </div>
+
+    <script>
+    $(document).ready(function(){
+        $('.collapsible').collapsible();
+        $('.modal').modal();
+
+        $("#edit_info_form").submit(function (e) {
+        // preventing from page reload and default actions
+        e.preventDefault();
+        // serialize the data for sending the form data.
+            const serializedData = $(this).serialize();
+            // make POST ajax call
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'patients:edit_card_info' card.id %}",
+            data: serializedData,
+            success: function (response) {
+                document.title = response['full_name']
+                $("#full_name_span").text(response['full_name'])
+                $("#date_of_birth_p").text("Дата народження: " + response['date_of_birth'])
+                $("#home_address_p").text("Адреса: " + response['home_address'])
+            },
+            error: function (response) {
+                // alert the error if any error occured
+                alert("error");
+            }
+            })
+        })
+
+        $("#edit_note_form").submit(function (e) {
+        // preventing from page reload and default actions
+        e.preventDefault();
+        // serialize the data for sending the form data.
+            const serializedData = $(this).serialize();
+            // make POST ajax call
+        $.ajax({
+            type: 'POST',
+            url: document.querySelector("#url_edit_note_" + document.querySelector("#note_edit_id").value).value,
+            data: serializedData,
+            success: function (response) {
+                console.log(response)
+                document.querySelector("#note_" + document.querySelector("#note_edit_id").value).innerHTML = response['text']
+            },
+            error: function (response) {
+                // alert the error if any error occured
+                alert("error");
+            }
+            })
+        })
+
+      });
+    function changeTextAreaNote(id) {
+        document.querySelector("#modal_edit_note textarea").value = document.querySelector("#note_" + id).textContent
+        document.querySelector('#note_edit_id').value = id
+    }
+    function changeDeleteNoteUrl(url){
+        console.log(url)
+        document.querySelector("#delete_note_form").action = url
+    }
+    </script>
+{% endblock %}
