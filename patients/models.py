@@ -10,8 +10,12 @@ class PatientCard(models.Model):
 
 
 class ExaminationNote(models.Model):
-    card = models.ForeignKey(PatientCard, related_name="examination_notes", on_delete=models.CASCADE)
-    doctor = models.ForeignKey(CustomUser, related_name="examination_notes", on_delete=models.SET_NULL, null=True)
+    card = models.ForeignKey(PatientCard,
+                             related_name="examination_notes",
+                             on_delete=models.CASCADE)
+    doctor = models.ForeignKey(CustomUser,
+                               related_name="examination_notes",
+                               on_delete=models.SET_NULL, null=True)
     date = models.DateTimeField(auto_now_add=True)
     text = models.TextField()
 

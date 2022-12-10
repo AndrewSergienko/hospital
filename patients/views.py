@@ -30,7 +30,7 @@ def card_list(request):
             queryset = queryset.order_by(
                 'date_of_birth') if search or filters else PatientCard.objects.order_by('date_of_birth')
     queryset = queryset if queryset else PatientCard.objects.all()
-    paginator = Paginator(queryset, 10)
+    paginator = Paginator(queryset, 5)
     page_number = request.GET['page'] if 'page' in request.GET else 1
     page_obj = paginator.get_page(page_number)
     form = AddCardForm()

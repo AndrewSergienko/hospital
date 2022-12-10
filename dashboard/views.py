@@ -1,10 +1,12 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from account.forms import EditUserForm
 from actions.models import Action
 
 
 def dashboard(request):
+    if not request.user.is_authenticated:
+        return redirect("account:login")
     if request.method == "POST":
         form = EditUserForm(request.POST)
         if form.is_valid():
